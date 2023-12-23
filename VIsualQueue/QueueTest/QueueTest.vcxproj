@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\DataStruct\queue.c" />
     <ClCompile Include="QueueTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\DataStruct\queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
