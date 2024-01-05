@@ -16,11 +16,14 @@ typedef struct File File;
 struct File
 {
     Element* premier;
+    Element* dernier;
+    int nb_elements;
 };
 
 File* initialiser();
 void enfiler(File* file, int nvNombre);
 int defiler(File* file);
+int peek(File* file);
 void afficherFile(File* file);
 void afficherTeteEtQueue(File* file);
 int file_est_vide(File* file);

@@ -3,6 +3,8 @@
 #include <windows.h>
 #include "../DataStruct/queue.h"
 
+
+
 // Fontion pour intialiser une file
 File* initialiser()
 {
@@ -10,12 +12,12 @@ File* initialiser()
 
     if (file == NULL)
     {
-        // Gérer l'erreur de l'allocation de mémoire ici pour eviter l'erreur Warning C6011
-        printf("Erreur lors de l'allocation de la mémoire\n");
-        exit(1);
+        return -1;
     }
 
     file->premier = NULL;
+    file->dernier = NULL;
+    file->nb_elements = 0;
 
     return file;
 }
@@ -27,7 +29,7 @@ void enfiler(File* file, int nvNombre)
 
     if (file == NULL || nouveau == NULL) //verifier l'existance de la file
     {
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     nouveau->nombre = nvNombre;
@@ -36,17 +38,15 @@ void enfiler(File* file, int nvNombre)
     if (file->premier != NULL) /* La file n'est pas vide */
     {
         
-        Element* elementActuel = file->premier;  /* On se positionne à la fin de la file */
-        while (elementActuel->suivant != NULL)
-        {
-            elementActuel = elementActuel->suivant;
-        }
-        elementActuel->suivant = nouveau;
+        file->dernier->suivant = nouveau;
     }
     else /* La file est vide, notre élément est le premier */
     {
         file->premier = nouveau;
     }
+
+    file->dernier = nouveau;
+    file->nb_elements++;
 }
 
 // La procedure defiler 
@@ -54,10 +54,10 @@ int defiler(File* file)
 {
     if (file == NULL) //verifier l'existance de la file
     {
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
-    int nombreDefile = 0;
+    int nombreDefile = -1;
 
  
     if (file->premier != NULL)   /* On vérifie s'il y a quelque chose à défiler */
@@ -67,9 +67,26 @@ int defiler(File* file)
         nombreDefile = elementDefile->nombre;
         file->premier = elementDefile->suivant;
         free(elementDefile);
+        file->nb_elements--;
     }
 
     return nombreDefile;
+}
+
+int peek(File* file)
+{
+    if (file == NULL) //verifier l'existance de la file
+    {
+        return -1;
+    }
+
+    if (file->premier != NULL)   /* On vérifie s'il y a quelque chose à défiler */
+    {
+        Element* elementDefile = file->premier;
+        return elementDefile->nombre;
+    }
+    else
+        return -1;
 }
 
 
@@ -113,7 +130,7 @@ void afficherFile(File* file)
         while (element != NULL)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-            printf("-> (@=%x) %d (@suiv=%x)",&element->nombre, element->nombre,element->suivant); // representer le contenu de l'element avec son adresse et l adresse du suivant
+            printf("-> (@=%x) %d (@suiv=%x)",(UINT)element, element->nombre, (UINT)element->suivant); // representer le contenu de l'element avec son adresse et l adresse du suivant
             element = element->suivant;
         }
         printf(" <- ");
@@ -126,28 +143,22 @@ void afficherFile(File* file)
     printf("\n      ------------------------------------------------------------\n");
 }
 
-
 void afficherTeteEtQueue(File* file)
 {
     if (file == NULL)  //verifier l'existance de la file
     {
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
 
-    Element* premiere = file->premier;
-    Element* derniere = premiere;
-
-    while (derniere->suivant != NULL)
-    {
-        derniere = derniere->suivant;
-    }
+    Element* premierE = file->premier;
+    Element* dernierE = file->dernier;
 
     //affichage
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 113);
-    printf("\n Head: %d \n", premiere->nombre);
+    printf("\n Head: %d \n\n", premierE->nombre);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 116);
-    printf(" TaiL: %d \n\n", derniere->nombre);
+    printf(" TaiL: %d \n\n", dernierE->nombre);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 }
 
@@ -162,27 +173,22 @@ void file_vider(File* file) {
         courant = suivant;
     }
 
+    file->nb_elements = 0;
+
     file->premier = NULL;
 }
 
 // Fonction pour compter le nombre d'éléments dans la file
 int file_nombre_elements(File* file) {
-    int compteur = 0;
-    Element* courant = file->premier;
-
-    while (courant != NULL) {
-        compteur++;
-        courant = courant->suivant;
-    }
-
-    return compteur;
+    return file->nb_elements;
 }
 
 // Fonction pour ajouter des valeurs aléatoires à la file
 void file_ajouter_aleatoires(File* file, int nb_elements) {
     file_vider(file);
+    srand(time(NULL));
     for (int i = 0; i < nb_elements; i++) {
-        int valeur_aleatoire = rand() % 100 + 1; // générer une valeur aléatoire entre 1 et 100
+        int valeur_aleatoire = rand() % 100 ; // générer une valeur aléatoire entre 1 et 200
         enfiler(file, valeur_aleatoire);     // ajouter la valeur aléatoire à la file
     }
 }
